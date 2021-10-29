@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import {useState, useEffect} from 'react';
+import { dijkstra, getNodesInShortestPathOrder } from "./algorithms/dijkstra";
 
 const Container = styled.div`
   background-color: #f4f4f4;
@@ -13,6 +14,7 @@ interface WrapperProps {
   isStart: boolean;
   isFinish: boolean;
   isVisited: boolean;
+  distance: number;
 }
 
 const Wrapper = styled.div<WrapperProps>`
@@ -50,23 +52,26 @@ function App() {
     for (let row = 0; row < 10; row++) {
       for (let col = 0; col < 20; col++) {
         setGrid((oldArray: any) => [...oldArray, {
-          x: col,
-          y: row,
+          col: col,
+          row: row,
           isStart: false,
           isFinish: false,
           isVisited: false,
-          isWall: false
+          isWall: false,
+          distance: Infinity,
+          previousNode: null
         }])
       }
 
     }
   }, [])
-  console.log(grid)
+  // console.log(grid);
+
 
   const changeColor = (id: number, x: number, y: number) => {
     const grid_copy = [...grid]
     grid_copy[id].isWall = !grid_copy[id].isWall
-    console.log(grid_copy[id].isWall)
+
     setGrid([...grid_copy])
 
   }
@@ -83,6 +88,43 @@ function App() {
     setGrid([...grid_copy]);
   }
 
+  const startNode = grid.filter((each: any) => each.isStart === true)[0]
+  const finishNode = grid.filter((each: any) => each.isFinish === true)[0]
+
+  const animateShortestPath = (nodesInShortestPathOrder: any) => {
+    for (let i = 0; i < nodesInShortestPathOrder.length; i++){
+      setTimeout(() => {
+        const node = nodesInShortestPathOrder[i];
+
+      })
+    }
+  }
+
+  const animateDijkstra = (visitedNodesInOrder: any, nodesInShortestPathOrder: any) => {
+    for ( let i = 0; i<= visitedNodesInOrder.length; i++){
+      if (i === visitedNodesInOrder.length){
+        setTimeout(() => {
+          animateShortestPath(nodesInShortestPathOrder);
+        }, 10*i);
+        return;
+      }
+      setTimeout(() => {
+        const node = visitedNodesInOrder[i];
+        // console.log(node);
+
+      }, 10*i);
+    }
+  }
+
+  const visualizeDijkstra = (grid: any, startNode: any, finishNode: any) => {
+    // console.log(finishNode)
+    const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
+    console.log(visitedNodesInOrder);
+    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
+
+
+  }
+
   return (
     <div>
       <Container>
@@ -96,14 +138,17 @@ function App() {
             isFinish={each.isFinish}
             isStart={each.isStart}
             isVisited={each.isVisited}
+            distance={each.distance}
             >
               {each.x}, {each.y}
             </Wrapper>
           ))
         }
+        
       </Container>
       <button onClick={() => setStart(82)}>Select start</button>
       <button onClick={() => setStop(97)}>Select end</button>
+      <button onClick={() => visualizeDijkstra({grid}, {startNode}, {finishNode})}>Visualize dijkstra</button>
     </div>
 
   );
